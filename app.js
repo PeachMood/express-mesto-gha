@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 
-const userSetter = require('./middlewares/userSetter');
+// const globalUserSetter = require('./middlewares/globalUserSetter');
 const errorHandler = require('./middlewares/errorHandler');
 const router = require('./routes');
 
@@ -14,7 +14,17 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use(userSetter);
+// Хотелось бы не загрязнять точку входа лишним кодом
+// и вынести все мидлвэры в отдельную папку, однако тесты не позволяют
+app.use((req, res, next) => {
+  req.user = {
+    _id: '5d8b8592978f8bd833ca8133',
+  };
+
+  next();
+});
+
+// app.use(globalUserSetter);
 app.use(router);
 app.use(errorHandler);
 
