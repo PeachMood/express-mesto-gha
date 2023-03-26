@@ -18,7 +18,6 @@ const createCard = (req, res, next) => {
     .then((card) => res.status(StatusCodes.CREATED).json(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        console.log(err);
         next(new BadRequest('Переданы некорректные данные при создании карточки.'));
       } else {
         next(err);
@@ -33,8 +32,9 @@ const deleteCard = (req, res, next) => {
     .orFail()
     .then(() => res.json({ message: 'Пост удален.' }))
     .catch((err) => {
+      // Возникает при передаче некорректного типа cardId
       if (err.name === 'CastError') {
-        next(new BadRequest('Передан некорректный _id при удалении карточки.'))
+        next(new BadRequest('Передан некорректный _id при удалении карточки.'));
       } else if (err.name === 'DocumentNotFoundError') {
         next(new NotFound(`Карточка с указанным _id:${cardId} не найдена.`));
       } else {

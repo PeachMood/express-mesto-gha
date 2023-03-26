@@ -16,8 +16,9 @@ const getUser = (req, res, next) => {
     .orFail()
     .then((user) => res.json(user))
     .catch((err) => {
+      // Возникает при передаче некорректного типа userId
       if (err.name === 'CastError') {
-        next(new BadRequest('Передан некорректный _id при поиске пользователя.'))
+        next(new BadRequest('Передан некорректный _id при поиске пользователя.'));
       } else if (err.name === 'DocumentNotFoundError') {
         next(new NotFound(`Пользователь с указанным _id:${userId} не найден.`));
       } else {
