@@ -13,9 +13,17 @@ const getUser = (req, res, next) => {
   const { userId } = req.params;
 
   User.findById(userId)
-    .orFail(() => new NotFound(`Пользователь с указанным _id:${userId} не найден.`))
+    .orFail()
     .then((user) => res.json(user))
-    .catch((err) => next(err));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(new BadRequest('Передан некорректный _id при поиске пользователя.'))
+      } else if (err.name === 'DocumentNotFoundError') {
+        next(new NotFound(`Пользователь с указанным _id:${userId} не найден.`));
+      } else {
+        next(err);
+      }
+    });
 };
 
 const createUser = (req, res, next) => {
@@ -40,8 +48,10 @@ const updateProfile = (req, res, next) => {
     .orFail(() => new NotFound(`Пользователь с указанным _id:${userId} не найден.`))
     .then((user) => res.json(user))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        next(new BadRequest('Переданы некорректные данные при обновлении профиля.'));
+      if (err.name === 'DocumentNotFoundError') {
+        next(new NotFound(`Пользователь с указанным _id:${userId} не найден.`));
+      } else if (err.name === 'CastError' || err.name === 'ValidationError') {
+        next(new BadRequest('Переданы некорректные данные при обновлении пользователя.'));
       } else {
         next(err);
       }
@@ -53,11 +63,13 @@ const updateAvatar = (req, res, next) => {
   const userId = req.user._id;
 
   User.findByIdAndUpdate(userId, { avatar }, { new: true, runValidators: true })
-    .orFail(() => new NotFound(`Пользователь с указанным _id:${userId} не найден.`))
+    .orFail()
     .then((user) => res.json(user))
     .catch((err) => {
-      if (err.name === 'ValidatorError') {
-        next(new BadRequest('Переданы некорректные данные при обновлении профиля.'));
+      if (err.name === 'DocumentNotFoundError') {
+        next(new NotFound(`Пользователь с указанным _id:${userId} не найден.`));
+      } else if (err.name === 'CastError' || err.name === 'ValidationError') {
+        next(new BadRequest('Переданы некорректные данные при обновлении аватара.'));
       } else {
         next(err);
       }
