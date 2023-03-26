@@ -12,7 +12,7 @@ const getAllCards = (req, res, next) => {
 
 const createCard = (req, res, next) => {
   const { name, link } = req.body;
-  const { owner } = req.user;
+  const owner = req.user._id;
 
   Card.create({ name, link, owner }, { new: true, runValidators: true })
     .then((card) => res.status(StatusCodes.CREATED).json(card))
@@ -36,7 +36,7 @@ const deleteCard = (req, res, next) => {
 
 const setCardLike = (req, res, next) => {
   const { cardId, isLiked } = req.card;
-  const { userId } = req.user;
+  const userId = req.user._id;
   const operator = isLiked ? { $pull: { likes: userId } } : { $addToSet: { likes: userId } };
 
   Card.findByIdAndUpdate(cardId, operator, { new: true, runValidators: true })

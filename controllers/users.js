@@ -34,7 +34,7 @@ const createUser = (req, res, next) => {
 
 const updateProfile = (req, res, next) => {
   const { name, about } = req.body;
-  const { userId } = req.user;
+  const userId = req.user._id;
 
   User.findByIdAndUpdate(userId, { name, about }, { new: true, runValidators: true })
     .orFail(() => new NotFound(`Пользователь с указанным _id:${userId} не найден.`))
@@ -50,7 +50,7 @@ const updateProfile = (req, res, next) => {
 
 const updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
-  const { userId } = req.user;
+  const userId = req.user._id;
 
   User.findByIdAndUpdate(userId, { avatar }, { new: true, runValidators: true })
     .orFail(() => new NotFound(`Пользователь с указанным _id:${userId} не найден.`))
