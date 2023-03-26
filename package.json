@@ -1,0 +1,37 @@
+{
+  "name": "express-mesto-gha",
+  "version": "1.0.0",
+  "description": "Сервер для веб-сайта Mesto",
+  "keywords": [
+    "фотографии",
+    "Mesto",
+    "Яндекс Практикум"
+  ],
+  "main": "app.js",
+  "scripts": {
+    "dev": "nodemon app.js",
+    "start": "node app.js",
+    "lint": "npx eslint .",
+    "lint-fix": "eslint . --fix"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PeachMood/express-mesto-gha.git"
+  },
+  "author": "Анна Воронова",
+  "license": "ISC",
+  "homepage": "https://github.com/PeachMood/express-mesto-gha#readme",
+  "devDependencies": {
+    "eslint": "^8.36.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.27.5",
+    "nodemon": "^2.0.22"
+  },
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "express": "^4.18.2",
+    "http-errors": "^2.0.0",
+    "http-status-codes": "^2.2.0",
+    "mongoose": "^7.0.3"
+  }
+}
