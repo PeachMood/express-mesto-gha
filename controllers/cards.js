@@ -4,7 +4,7 @@ const { StatusCodes } = require('http-status-codes');
 const Card = require('../models/card');
 
 const getAllCards = (req, res, next) => {
-  Card.find({})
+  Card.find({}, '-__v')
     .populate(['owner', 'likes'])
     .then((cards) => res.json(cards))
     .catch((err) => next(err));
@@ -28,7 +28,7 @@ const createCard = (req, res, next) => {
 const deleteCard = (req, res, next) => {
   const { cardId } = req.params;
 
-  Card.findByIdAndDelete(cardId)
+  Card.findByIdAndDelete(cardId, { select: '-__v' })
     .orFail()
     .then(() => res.json({ message: 'Пост удален.' }))
     .catch((err) => {
@@ -48,7 +48,7 @@ const setCardLike = (req, res, next) => {
   const userId = req.user._id;
   const operator = isLiked ? { $pull: { likes: userId } } : { $addToSet: { likes: userId } };
 
-  Card.findByIdAndUpdate(cardId, operator, { new: true, runValidators: true })
+  Card.findByIdAndUpdate(cardId, operator, { new: true, runValidators: true, select: '-__v' })
     .orFail()
     .populate(['owner', 'likes'])
     .then((card) => res.json(card))
