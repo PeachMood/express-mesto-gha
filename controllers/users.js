@@ -4,7 +4,7 @@ const { StatusCodes } = require('http-status-codes');
 const User = require('../models/user');
 
 const getAllUsers = (req, res, next) => {
-  User.find({}, '-__v')
+  User.find({})
     .then((users) => res.json(users))
     .catch((err) => next(err));
 };
@@ -12,7 +12,7 @@ const getAllUsers = (req, res, next) => {
 const getUser = (req, res, next) => {
   const { userId } = req.params;
 
-  User.findById(userId, '-__v')
+  User.findById(userId)
     .orFail()
     .then((user) => res.json(user))
     .catch((err) => {
@@ -45,7 +45,7 @@ const updateProfile = (req, res, next) => {
   const { name, about } = req.body;
   const userId = req.user._id;
 
-  User.findByIdAndUpdate(userId, { name, about }, { new: true, runValidators: true, select: '-__v' })
+  User.findByIdAndUpdate(userId, { name, about }, { new: true, runValidators: true })
     .orFail(() => new NotFound(`Пользователь с указанным _id:${userId} не найден.`))
     .then((user) => res.json(user))
     .catch((err) => {
@@ -63,7 +63,7 @@ const updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
   const userId = req.user._id;
 
-  User.findByIdAndUpdate(userId, { avatar }, { new: true, runValidators: true, select: '-__v' })
+  User.findByIdAndUpdate(userId, { avatar }, { new: true, runValidators: true })
     .orFail()
     .then((user) => res.json(user))
     .catch((err) => {
