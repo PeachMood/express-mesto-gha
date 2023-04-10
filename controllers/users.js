@@ -1,6 +1,8 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const { NotFound, BadRequest, Unauthorized, Conflict } = require('http-errors');
+const {
+  NotFound, BadRequest, Unauthorized, Conflict,
+} = require('http-errors');
 const { StatusCodes } = require('http-status-codes');
 
 const User = require('../models/user');
@@ -126,5 +128,5 @@ module.exports = {
   updateProfile,
   updateAvatar,
   createUser,
-  login
+  login,
 };
