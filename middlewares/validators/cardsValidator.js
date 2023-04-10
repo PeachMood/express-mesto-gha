@@ -10,7 +10,7 @@ const isCardId = celebrate({
 const isCard = celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30).required(),
-    link: Joi.string().required().custom((value, helper) => validator.isURL(value) ? value : helper.message('Link must be a valid URL.')),
+    link: Joi.string().required().custom((value, helper) => (validator.isURL(value) ? value : helper.message('Link must be a valid URL.'))),
   }),
 });
 

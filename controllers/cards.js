@@ -18,7 +18,6 @@ const createCard = (req, res, next) => {
     .then((card) => res.status(StatusCodes.CREATED).json(card.toJSON()))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        console.log(err);
         next(new BadRequest('Переданы некорректные данные при создании карточки.'));
       } else {
         next(err);

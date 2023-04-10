@@ -2,7 +2,7 @@ const express = require('express');
 
 const router = express.Router();
 
-const validator = require('../middlewares//validators/cardsValidator');
+const validator = require('../middlewares/validators/cardsValidator');
 const controller = require('../controllers/cards');
 
 router.get('/', controller.getAllCards);

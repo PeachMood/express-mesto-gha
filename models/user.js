@@ -37,16 +37,16 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-userSchema.methods.toJSON = function () {
+userSchema.methods.toJSON = function toJSON() {
   const data = this.toObject();
 
   delete data.password;
   delete data.__v;
 
   return data;
-}
+};
 
-userSchema.statics.findUserByCredentials = function ({ email, password }) {
+userSchema.statics.findUserByCredentials = function findUserByCredentials({ email, password }) {
   const ERROR_MESSAGE = `No document found for query {email: ${email}, password: ${password}}`;
 
   return this.findOne({ email })

@@ -1,4 +1,4 @@
-const { isHttpError, Unauthorized, InternalServerError } = require('http-errors');
+const { isHttpError, InternalServerError } = require('http-errors');
 
 const errorHandler = (err, req, res, next) => {
   let error = err;

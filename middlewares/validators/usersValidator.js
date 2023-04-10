@@ -16,9 +16,8 @@ const isProfile = celebrate({
 
 const isAvatar = celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().required().custom((value, helper) => validator.isURL(value) ? value : helper.message('Avatar must be a valid URL.')),
+    avatar: Joi.string().required().custom((value, helper) => (validator.isURL(value) ? value : helper.message('Avatar must be a valid URL.'))),
   }),
 });
 
 module.exports = { isUserId, isProfile, isAvatar };
-

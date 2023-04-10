@@ -12,7 +12,7 @@ const cardSchema = new mongoose.Schema({
     type: String,
     required: true,
     validate: {
-      validator: (value) => validator.isURL(value)
+      validator: (value) => validator.isURL(value),
     },
   },
   owner: {
@@ -33,9 +33,9 @@ const cardSchema = new mongoose.Schema({
   },
 });
 
-cardSchema.methods.toJSON = function () {
+cardSchema.methods.toJSON = function toJSON() {
   const data = this.toObject();
   delete data.__v;
   return data;
-}
+};
 module.exports = mongoose.model('card', cardSchema);
