@@ -28,23 +28,17 @@ const createCard = (req, res, next) => {
 const deleteCard = (req, res, next) => {
   const { cardId } = req.params;
 
-  Card.findByIdAndDelete(cardId)
-    .orFail()
-    .populate('owner')
+  Card.findById(cardId)
     .then((card) => {
-      if (card.owner._id !== req.user._id) {
-        next(new Forbidden(`Нет прав на удаление карточки, с указанным _id: ${cardId}.`));
-      } else {
-        res.json({ message: 'Пост удален.' });
+      if (!card) {
+        return Promise.reject(new NotFound(`Карточка с указанным _id:${cardId} не найдена.`));
+      } if (card.owner.toString() !== req.user._id) {
+        return Promise.reject(new Forbidden(`Нет прав на удаление карточки, с указанным _id: ${cardId}.`));
       }
+      return Card.deleteOne(card);
     })
-    .catch((err) => {
-      if (err.name === 'DocumentNotFoundError') {
-        next(new NotFound(`Карточка с указанным _id:${cardId} не найдена.`));
-      } else {
-        next(err);
-      }
-    });
+    .then(() => res.json({ message: 'Пост удален.' }))
+    .catch((err) => next(err));
 };
 
 const setCardLike = (req, res, next) => {
