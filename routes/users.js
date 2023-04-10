@@ -2,12 +2,13 @@ const express = require('express');
 
 const router = express.Router();
 
+const validator = require('../middlewares/validators/usersValidator');
 const controller = require('../controllers/users');
 
 router.get('/', controller.getAllUsers);
-router.get('/:userId', controller.getUser);
-router.post('/', controller.createUser);
-router.patch('/me', controller.updateProfile);
-router.patch('/me/avatar', controller.updateAvatar);
+router.get('/me', controller.getCurrentUser);
+router.get('/:userId', validator.isUserId, controller.getUserById);
+router.patch('/me', validator.isProfile, controller.updateProfile);
+router.patch('/me/avatar', validator.isAvatar, controller.updateAvatar);
 
 module.exports = router;

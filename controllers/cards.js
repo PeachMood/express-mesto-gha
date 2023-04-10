@@ -1,4 +1,4 @@
-const { NotFound, BadRequest } = require('http-errors');
+const { Forbidden, NotFound, BadRequest } = require('http-errors');
 const { StatusCodes } = require('http-status-codes');
 
 const Card = require('../models/card');
@@ -6,7 +6,7 @@ const Card = require('../models/card');
 const getAllCards = (req, res, next) => {
   Card.find({})
     .populate(['owner', 'likes'])
-    .then((cards) => res.json(cards))
+    .then((cards) => res.json(cards.map((card) => card.toJSON())))
     .catch((err) => next(err));
 };
 
@@ -15,9 +15,10 @@ const createCard = (req, res, next) => {
   const owner = req.user._id;
 
   Card.create({ name, link, owner })
-    .then((card) => res.status(StatusCodes.CREATED).json(card))
+    .then((card) => res.status(StatusCodes.CREATED).json(card.toJSON()))
     .catch((err) => {
       if (err.name === 'ValidationError') {
+        console.log(err);
         next(new BadRequest('Переданы некорректные данные при создании карточки.'));
       } else {
         next(err);
@@ -30,12 +31,15 @@ const deleteCard = (req, res, next) => {
 
   Card.findByIdAndDelete(cardId)
     .orFail()
-    .then(() => res.json({ message: 'Пост удален.' }))
+    .then((card) => {
+      if (card.owner._id !== req.user._id) {
+        next(new Forbidden(`Нет прав на удаление карточки, с указанным _id: ${cardId}.`));
+      } else {
+        res.json({ message: 'Пост удален.' });
+      }
+    })
     .catch((err) => {
-      // Возникает при передаче некорректного типа cardId
-      if (err.name === 'CastError') {
-        next(new BadRequest('Передан некорректный _id при удалении карточки.'));
-      } else if (err.name === 'DocumentNotFoundError') {
+      if (err.name === 'DocumentNotFoundError') {
         next(new NotFound(`Карточка с указанным _id:${cardId} не найдена.`));
       } else {
         next(err);
@@ -51,11 +55,11 @@ const setCardLike = (req, res, next) => {
   Card.findByIdAndUpdate(cardId, operator, { new: true, runValidators: true })
     .orFail()
     .populate(['owner', 'likes'])
-    .then((card) => res.json(card))
+    .then((card) => res.json(card.toJSON()))
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
         next(new NotFound(`Карточка с указанным _id:${cardId} не найдена.`));
-      } else if (err.name === 'CastError' || err.name === 'ValidationError') {
+      } else if (err.name === 'ValidationError') {
         next(new BadRequest(`Переданы некорректные данные для ${isLiked ? 'снятия' : 'добавления'} лайка.`));
       } else {
         next(err);

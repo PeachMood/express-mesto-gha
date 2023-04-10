@@ -1,22 +1,29 @@
+require('dotenv').config();
 const express = require('express');
 const helmet = require('helmet');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
+const { errors } = require('celebrate');
 
 const rateLimiter = require('./middlewares/rateLimiter');
 const errorHandler = require('./middlewares/errorHandler');
 const router = require('./routes');
 
-const PORT = process.env.PORT || 3000;
-const DB_URI = 'mongodb://localhost:27017/mestodb';
+const {
+  PORT = 3000, DB_NAME = 'mestodb', DB_HOST = 'localhost', DB_PORT = 27017,
+} = process.env;
+const DB_URI = `mongodb://${DB_HOST}:${DB_PORT}/${DB_NAME}`;
 
 const app = express();
 
 app.use(rateLimiter);
 app.use(helmet());
+app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(router);
+app.use(errors());
 app.use(errorHandler);
 
 mongoose.connect(DB_URI);

@@ -1,12 +1,12 @@
-const createError = require('http-errors');
+const { isHttpError, Unauthorized, InternalServerError } = require('http-errors');
 
 const errorHandler = (err, req, res, next) => {
-  let theErr = err;
-  if (!createError.isHttpError(err)) {
-    theErr = new createError.InternalServerError(`Ошибка сервера: ${err.message}`);
+  let error = err;
+  if (!isHttpError(err)) {
+    error = new InternalServerError(`Ошибка сервера: ${err.message}`);
   }
-  res.status(theErr.status);
-  res.json({ message: theErr.message });
+  res.status(error.status);
+  res.json({ message: error.message });
 };
 
 module.exports = errorHandler;
