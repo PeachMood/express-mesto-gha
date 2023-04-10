@@ -3,7 +3,7 @@ const validator = require('validator');
 
 const isUserId = celebrate({
   params: Joi.object().keys({
-    userId: Joi.string().required(),
+    userId: Joi.string().hex().required(),
   }),
 });
 
