@@ -32,7 +32,6 @@ const deleteCard = (req, res, next) => {
     .orFail()
     .populate('owner')
     .then((card) => {
-
       if (card.owner._id !== req.user._id) {
         next(new Forbidden(`Нет прав на удаление карточки, с указанным _id: ${cardId}.`));
       } else {
