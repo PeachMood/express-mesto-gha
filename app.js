@@ -10,10 +10,7 @@ const rateLimiter = require('./middlewares/rateLimiter');
 const errorHandler = require('./middlewares/errorHandler');
 const router = require('./routes');
 
-const {
-  PORT = 3000, DB_NAME = 'mestodb', DB_HOST = 'localhost', DB_PORT = 27017,
-} = process.env;
-const DB_URI = `mongodb://${DB_HOST}:${DB_PORT}/${DB_NAME}`;
+const { PORT = 3000, DB_URI = 'mongodb://localhost:27017/mestodb' } = process.env;
 
 const app = express();
 
