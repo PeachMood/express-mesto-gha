@@ -15,7 +15,8 @@ const authVerifier = (req, res, next) => {
   try {
     payload = jwt.verify(token, JWT_SECRET);
   } catch (err) {
-    return next(new Unauthorized(ERROR_MESSAGE));
+    next(new Unauthorized(ERROR_MESSAGE));
+    return;
   }
   req.auth = { userId: payload._id };
   next();
