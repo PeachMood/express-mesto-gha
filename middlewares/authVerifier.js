@@ -11,13 +11,14 @@ const authVerifier = (req, res, next) => {
     return;
   }
 
+  let payload;
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    req.auth.userId = decoded._id;
-    next();
+    payload = jwt.verify(token, JWT_SECRET);
   } catch (err) {
-    next(new Unauthorized(ERROR_MESSAGE));
+    return next(new Unauthorized(ERROR_MESSAGE));
   }
+  req.auth = { userId: payload._id };
+  next();
 };
 
 module.exports = authVerifier;
