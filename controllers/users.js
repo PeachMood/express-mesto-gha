@@ -1,6 +1,8 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const { NotFound, BadRequest, Unauthorized, Conflict, } = require('http-errors');
+const {
+  NotFound, BadRequest, Unauthorized, Conflict,
+} = require('http-errors');
 const { StatusCodes } = require('http-status-codes');
 const { Error } = require('mongoose');
 
@@ -26,7 +28,7 @@ const getUserById = (req, res, next) => {
         next(err);
       }
     });
-}
+};
 
 const getUser = (req, res, next) => {
   res.user.userId = req.params.userId;
@@ -39,7 +41,9 @@ const getCurrentUser = (req, res, next) => {
 };
 
 const updateUser = (req, res, next) => {
-  const { userId, name, about, avatar } = req.user;
+  const {
+    userId, name, about, avatar,
+  } = req.user;
 
   User.findByIdAndUpdate(userId, { name, about, avatar }, { new: true, runValidators: true })
     .orFail()
@@ -53,7 +57,7 @@ const updateUser = (req, res, next) => {
         next(err);
       }
     });
-}
+};
 
 const updateProfile = (req, res, next) => {
   req.user = {
