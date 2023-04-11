@@ -48,7 +48,7 @@ userSchema.methods.toJSON = function toJSON() {
 };
 
 userSchema.statics.findUserByCredentials = function findUserByCredentials({ email, password }) {
-  const ERROR_MESSAGE = `Неправильные почта или пароль.`;
+  const ERROR_MESSAGE = 'Неправильные почта или пароль.';
 
   return this.findOne({ email })
     .select('+password')
