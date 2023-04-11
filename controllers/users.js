@@ -1,10 +1,8 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const {
-  NotFound, BadRequest, Unauthorized, Conflict,
-} = require('http-errors');
 const { StatusCodes } = require('http-status-codes');
 const { Error } = require('mongoose');
+const { NotFound, BadRequest, Unauthorized, Conflict } = require('http-errors');
 
 const User = require('../models/user');
 
