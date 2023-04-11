@@ -87,13 +87,7 @@ const login = (req, res, next) => {
       res.cookie('jwt', token, { httpOnly: true, maxAge: EXPIRES_IN_SECONDS * 1000 })
         .json({ message: 'Пользователь успешно авторизован.' });
     })
-    .catch((err) => {
-      if (err instanceof Error.DocumentNotFoundError) {
-        next(new Unauthorized('Неправильные почта или пароль.'));
-      } else {
-        next(err);
-      }
-    });
+    .catch(next);
 };
 
 const createUser = (req, res, next) => {

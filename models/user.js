@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
+const { Unauthorized } = require('http-errors');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -47,19 +48,19 @@ userSchema.methods.toJSON = function toJSON() {
 };
 
 userSchema.statics.findUserByCredentials = function findUserByCredentials({ email, password }) {
-  const ERROR_MESSAGE = `No document found for query {email: ${email}, password: ${password}}`;
+  const ERROR_MESSAGE = `Неправильные почта или пароль.`;
 
   return this.findOne({ email })
     .select('+password')
     .then((user) => {
       if (!user) {
-        return Promise.reject(new mongoose.Error.DocumentNotFoundError(ERROR_MESSAGE));
+        return Promise.reject(new Unauthorized(ERROR_MESSAGE));
       }
 
       return bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) {
-            return Promise.reject(new mongoose.Error.DocumentNotFoundError(ERROR_MESSAGE));
+            return Promise.reject(new Unauthorized(ERROR_MESSAGE));
           }
           return user;
         });
