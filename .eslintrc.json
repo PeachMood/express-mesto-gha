@@ -1,6 +1,6 @@
 {
   "env": {
-    "browser": true,
+    "browser": false,
     "commonjs": true,
     "es2021": true
   },
@@ -10,7 +10,15 @@
     "ecmaVersion": "latest"
   },
   "rules": {
-    "no-underscore-dangle": "off",
+    "no-underscore-dangle": [
+      "error",
+      {
+        "allow": [
+          "_id",
+          "__v"
+        ]
+      }
+    ],
     "no-unused-vars": [
       "error",
       {

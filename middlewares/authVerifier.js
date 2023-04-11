@@ -12,7 +12,8 @@ const authVerifier = (req, res, next) => {
   }
 
   try {
-    req.user = jwt.verify(token, JWT_SECRET);
+    const decoded = jwt.verify(token, JWT_SECRET);
+    req.auth.userId = decoded._id;
     next();
   } catch (err) {
     next(new Unauthorized(ERROR_MESSAGE));

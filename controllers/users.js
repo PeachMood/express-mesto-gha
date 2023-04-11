@@ -1,9 +1,8 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const {
-  NotFound, BadRequest, Unauthorized, Conflict,
-} = require('http-errors');
+const { NotFound, BadRequest, Unauthorized, Conflict, } = require('http-errors');
 const { StatusCodes } = require('http-status-codes');
+const { Error } = require('mongoose');
 
 const User = require('../models/user');
 
@@ -14,69 +13,63 @@ const getAllUsers = (req, res, next) => {
 };
 
 const getUserById = (req, res, next) => {
-  const { userId } = req.params;
-
+  const { userId } = req.user;
   User.findById(userId)
     .orFail()
     .then((user) => res.json(user.toJSON()))
     .catch((err) => {
-      if (err.name === 'DocumentNotFoundError') {
+      if (err instanceof Error.ValidationError) {
+        next(new BadRequest('Передан некорректный _id пользователя.'));
+      } else if (err.name instanceof Error.DocumentNotFoundError) {
         next(new NotFound(`Пользователь с указанным _id:${userId} не найден.`));
       } else {
         next(err);
       }
     });
+}
+
+const getUser = (req, res, next) => {
+  res.user.userId = req.params.userId;
+  getUserById(req, res, next);
 };
 
 const getCurrentUser = (req, res, next) => {
-  const userId = req.user._id;
-
-  User.findById(userId)
-    .orFail()
-    .then((user) => res.json(user.toJSON()))
-    .catch((err) => {
-      if (err.name === 'DocumentNotFoundError') {
-        next(new NotFound(`Пользователь с указанным _id:${userId} не найден.`));
-      } else {
-        next(err);
-      }
-    });
+  req.user.userId = req.auth.userId;
+  getUserById(req, res, next);
 };
 
-const updateProfile = (req, res, next) => {
-  const { name, about } = req.body;
-  const userId = req.user._id;
+const updateUser = (req, res, next) => {
+  const { userId, name, about, avatar } = req.user;
 
-  User.findByIdAndUpdate(userId, { name, about }, { new: true, runValidators: true })
+  User.findByIdAndUpdate(userId, { name, about, avatar }, { new: true, runValidators: true })
     .orFail()
     .then((user) => res.json(user))
     .catch((err) => {
-      if (err.name === 'DocumentNotFoundError') {
-        next(new NotFound(`Пользователь с указанным _id:${userId} не найден.`));
-      } else if (err.name === 'ValidationError') {
+      if (err instanceof Error.ValidationError) {
         next(new BadRequest('Переданы некорректные данные при обновлении пользователя.'));
+      } else if (err instanceof Error.DocumentNotFoundError) {
+        next(new NotFound(`Пользователь с указанным _id:${userId} не найден.`));
       } else {
         next(err);
       }
     });
+}
+
+const updateProfile = (req, res, next) => {
+  req.user = {
+    userId: req.auth.userId,
+    name: req.body.name,
+    about: req.body.about,
+  };
+  updateUser(req, res, next);
 };
 
 const updateAvatar = (req, res, next) => {
-  const { avatar } = req.body;
-  const userId = req.user._id;
-
-  User.findByIdAndUpdate(userId, { avatar }, { new: true, runValidators: true })
-    .orFail()
-    .then((user) => res.json(user))
-    .catch((err) => {
-      if (err.name === 'DocumentNotFoundError') {
-        next(new NotFound(`Пользователь с указанным _id:${userId} не найден.`));
-      } else if (err.name === 'ValidationError') {
-        next(new BadRequest('Переданы некорректные данные при обновлении аватара.'));
-      } else {
-        next(err);
-      }
-    });
+  req.user = {
+    userId: req.auth.userId,
+    avatar: req.body.avatar,
+  };
+  updateUser(req, res, next);
 };
 
 const login = (req, res, next) => {
@@ -91,7 +84,7 @@ const login = (req, res, next) => {
         .json({ message: 'Пользователь успешно авторизован.' });
     })
     .catch((err) => {
-      if (err.name === 'DocumentNotFoundError') {
+      if (err instanceof Error.DocumentNotFoundError) {
         next(new Unauthorized('Неправильные почта или пароль.'));
       } else {
         next(err);
@@ -111,10 +104,10 @@ const createUser = (req, res, next) => {
     }))
     .then((user) => res.status(StatusCodes.CREATED).json(user.toJSON()))
     .catch((err) => {
-      if (err.code === 11000) {
-        next(new Conflict('Пользователь с данной почтой уже существует.'));
-      } else if (err.name === 'ValidationError') {
+      if (err instanceof Error.ValidationError) {
         next(new BadRequest('Переданы некорректные данные при регистрации пользователя.'));
+      } else if (err.code === 11000) {
+        next(new Conflict('Пользователь с данной почтой уже существует.'));
       } else {
         next(err);
       }
@@ -123,7 +116,7 @@ const createUser = (req, res, next) => {
 
 module.exports = {
   getAllUsers,
-  getUserById,
+  getUser,
   getCurrentUser,
   updateProfile,
   updateAvatar,

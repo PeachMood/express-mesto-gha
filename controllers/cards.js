@@ -1,5 +1,6 @@
 const { Forbidden, NotFound, BadRequest } = require('http-errors');
 const { StatusCodes } = require('http-status-codes');
+const { Error } = require('mongoose');
 
 const Card = require('../models/card');
 
@@ -12,12 +13,12 @@ const getAllCards = (req, res, next) => {
 
 const createCard = (req, res, next) => {
   const { name, link } = req.body;
-  const owner = req.user._id;
+  const owner = req.auth._id;
 
   Card.create({ name, link, owner })
     .then((card) => res.status(StatusCodes.CREATED).json(card.toJSON()))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err instanceof Error.ValidationError) {
         next(new BadRequest('Переданы некорректные данные при создании карточки.'));
       } else {
         next(err);
@@ -29,21 +30,28 @@ const deleteCard = (req, res, next) => {
   const { cardId } = req.params;
 
   Card.findById(cardId)
+    .orFail()
     .then((card) => {
-      if (!card) {
-        return Promise.reject(new NotFound(`Карточка с указанным _id:${cardId} не найдена.`));
-      } if (card.owner.toString() !== req.user._id) {
+      if (card.owner.toString() !== req.auth.userId) {
         return Promise.reject(new Forbidden(`Нет прав на удаление карточки, с указанным _id: ${cardId}.`));
       }
       return Card.deleteOne(card);
     })
     .then(() => res.json({ message: 'Пост удален.' }))
-    .catch((err) => next(err));
+    .catch((err) => {
+      if (err instanceof Error.ValidationError) {
+        next(new BadRequest('Передан некорректный _id карточки.'));
+      } else if (err instanceof Error.DocumentNotFoundError) {
+        next(new NotFound(`Карточка с указанным _id:${cardId} не найдена.`));
+      } else {
+        next(err);
+      }
+    });
 };
 
 const setCardLike = (req, res, next) => {
   const { cardId, isLiked } = req.card;
-  const userId = req.user._id;
+  const { userId } = req.auth;
   const operator = isLiked ? { $pull: { likes: userId } } : { $addToSet: { likes: userId } };
 
   Card.findByIdAndUpdate(cardId, operator, { new: true, runValidators: true })
@@ -51,10 +59,10 @@ const setCardLike = (req, res, next) => {
     .populate(['owner', 'likes'])
     .then((card) => res.json(card.toJSON()))
     .catch((err) => {
-      if (err.name === 'DocumentNotFoundError') {
+      if (err instanceof Error.ValidationError) {
+        next(new BadRequest('Передан некорректный _id карточки'));
+      } else if (err instanceof Error.DocumentNotFoundError) {
         next(new NotFound(`Карточка с указанным _id:${cardId} не найдена.`));
-      } else if (err.name === 'ValidationError') {
-        next(new BadRequest(`Переданы некорректные данные для ${isLiked ? 'снятия' : 'добавления'} лайка.`));
       } else {
         next(err);
       }
