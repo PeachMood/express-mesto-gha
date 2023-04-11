@@ -31,7 +31,7 @@ const getUserById = (req, res, next) => {
 };
 
 const getUser = (req, res, next) => {
-  res.user.userId = req.params.userId;
+  res.user = { userId: req.params.userId };
   getUserById(req, res, next);
 };
 
