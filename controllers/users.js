@@ -22,7 +22,7 @@ const getUserById = (req, res, next) => {
     .catch((err) => {
       if (err instanceof Error.ValidationError) {
         next(new BadRequest('Передан некорректный _id пользователя.'));
-      } else if (err.name instanceof Error.DocumentNotFoundError) {
+      } else if (err instanceof Error.DocumentNotFoundError) {
         next(new NotFound(`Пользователь с указанным _id:${userId} не найден.`));
       } else {
         next(err);
