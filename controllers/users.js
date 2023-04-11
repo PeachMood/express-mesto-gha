@@ -36,7 +36,7 @@ const getUser = (req, res, next) => {
 };
 
 const getCurrentUser = (req, res, next) => {
-  req.user.userId = req.auth.userId;
+  req.user = { userId: req.auth.userId };
   getUserById(req, res, next);
 };
 
