@@ -39,7 +39,7 @@ const deleteCard = (req, res, next) => {
     })
     .then(() => res.json({ message: 'Пост удален.' }))
     .catch((err) => {
-      if (err instanceof Error.ValidationError) {
+      if (err instanceof Error.CastError) {
         next(new BadRequest('Передан некорректный _id карточки.'));
       } else if (err instanceof Error.DocumentNotFoundError) {
         next(new NotFound(`Карточка с указанным _id:${cardId} не найдена.`));
@@ -59,7 +59,7 @@ const setCardLike = (req, res, next) => {
     .populate(['owner', 'likes'])
     .then((card) => res.json(card.toJSON()))
     .catch((err) => {
-      if (err instanceof Error.ValidationError) {
+      if (err instanceof Error.CastError) {
         next(new BadRequest('Передан некорректный _id карточки'));
       } else if (err instanceof Error.DocumentNotFoundError) {
         next(new NotFound(`Карточка с указанным _id:${cardId} не найдена.`));
