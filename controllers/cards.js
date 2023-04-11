@@ -13,7 +13,7 @@ const getAllCards = (req, res, next) => {
 
 const createCard = (req, res, next) => {
   const { name, link } = req.body;
-  const owner = req.auth._id;
+  const owner = req.auth.userId;
 
   Card.create({ name, link, owner })
     .then((card) => res.status(StatusCodes.CREATED).json(card.toJSON()))
