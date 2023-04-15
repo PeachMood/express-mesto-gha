@@ -47,7 +47,7 @@ const updateUser = (req, res, next) => {
     .orFail()
     .then((user) => res.json(user))
     .catch((err) => {
-      if (err instanceof Error.ValidationError || err instanceof Error.CastError) {
+      if (err instanceof Error.ValidationError) {
         next(new BadRequest('Переданы некорректные данные при обновлении пользователя.'));
       } else if (err instanceof Error.DocumentNotFoundError) {
         next(new NotFound(`Пользователь с указанным _id:${userId} не найден.`));
