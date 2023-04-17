@@ -31,11 +31,6 @@ const cardSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-});
+}, { versionKey: false });
 
-cardSchema.methods.toJSON = function toJSON() {
-  const data = this.toObject();
-  delete data.__v;
-  return data;
-};
 module.exports = mongoose.model('card', cardSchema);

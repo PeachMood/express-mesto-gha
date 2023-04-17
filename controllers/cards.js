@@ -7,7 +7,7 @@ const Card = require('../models/card');
 const getAllCards = (req, res, next) => {
   Card.find({})
     .populate(['owner', 'likes'])
-    .then((cards) => res.json(cards.map((card) => card.toJSON())))
+    .then((cards) => res.json(cards))
     .catch((err) => next(err));
 };
 
@@ -16,7 +16,8 @@ const createCard = (req, res, next) => {
   const owner = req.auth.userId;
 
   Card.create({ name, link, owner })
-    .then((card) => res.status(StatusCodes.CREATED).json(card.toJSON()))
+    .then((card) => card.populate(['owner', 'likes']))
+    .then((card) => res.status(StatusCodes.CREATED).json(card))
     .catch((err) => {
       if (err instanceof Error.ValidationError) {
         next(new BadRequest('Переданы некорректные данные при создании карточки.'));
@@ -57,7 +58,7 @@ const setCardLike = (req, res, next) => {
   Card.findByIdAndUpdate(cardId, operator, { new: true, runValidators: true })
     .orFail()
     .populate(['owner', 'likes'])
-    .then((card) => res.json(card.toJSON()))
+    .then((card) => res.json(card))
     .catch((err) => {
       if (err instanceof Error.CastError) {
         next(new BadRequest('Передан некорректный _id карточки'));

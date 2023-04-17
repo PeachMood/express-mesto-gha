@@ -36,31 +36,26 @@ const userSchema = new mongoose.Schema({
     select: false,
     required: true,
   },
-});
+}, { versionKey: false });
 
 userSchema.methods.toJSON = function toJSON() {
   const data = this.toObject();
-
   delete data.password;
-  delete data.__v;
-
   return data;
 };
 
 userSchema.statics.findUserByCredentials = function findUserByCredentials({ email, password }) {
-  const ERROR_MESSAGE = 'Неправильные почта или пароль.';
-
   return this.findOne({ email })
     .select('+password')
     .then((user) => {
       if (!user) {
-        return Promise.reject(new Unauthorized(ERROR_MESSAGE));
+        return Promise.reject(new Unauthorized('Неправильные почта или пароль.'));
       }
 
       return bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) {
-            return Promise.reject(new Unauthorized(ERROR_MESSAGE));
+            return Promise.reject(new Unauthorized('Неправильные почта или пароль.'));
           }
           return user;
         });
